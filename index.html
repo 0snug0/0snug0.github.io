@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Web Performance Grand Prix 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: "Monaco Racing" - A sophisticated blend of neutral grays, a deep charcoal, a clean white, and a vibrant red accent, inspired by classic motorsport liveries. -->
+    <!-- Application Structure Plan: The SPA is designed with a three-part interactive structure for optimal user flow. 1) 'Hero & Standings': An immediate overview with the final championship table. 2) 'Metric Deep Dive': A dashboard section with interactive buttons to switch between different performance metric charts (LCP, INP, etc.). 3) 'Team Debrief': A detailed section with an interactive accordion layout. Each team has a compact summary row that, when clicked, expands to show the full analysis. This improves scannability and user control over information density. -->
+    <!-- Visualization & Content Choices: Report Info -> Goal -> Viz/Presentation -> Interaction -> Justification. 1) Overall Results -> Compare -> Interactive HTML Table -> Sortable headers -> Allows users to rank teams by different metrics directly. 2) Individual Metrics -> Compare/Analyze -> Bar Charts (Chart.js/Canvas) -> Buttons to switch chart data -> Enables focused comparison on a single performance vector. 3) Team-specific Analysis -> Inform/Detail -> Accordion Rows -> Click to expand/collapse -> Manages large amounts of text effectively, preventing an overwhelming initial layout while keeping all data accessible. 4) Key Findings -> Synthesize -> Styled Text Blocks -> Static display -> Clearly communicates the report's main conclusions. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F3F4F6; /* Warm Neutral Gray */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+        .active-nav {
+            border-bottom: 2px solid #DC0000;
+            color: #111827;
+        }
+        .inactive-nav {
+            border-bottom: 2px solid transparent;
+            color: #6B7280;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .accordion-icon {
+            transition: transform 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-30">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
+                    <span class="text-red-600">F1</span> Web Performance GP <span class="font-light">2025</span>
+                </h1>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#overview" class="font-semibold inactive-nav hover:text-gray-900 transition-colors duration-300">Overview</a>
+                    <a href="#metrics" class="font-semibold inactive-nav hover:text-gray-900 transition-colors duration-300">Metric Deep Dive</a>
+                    <a href="#debrief" class="font-semibold inactive-nav hover:text-gray-900 transition-colors duration-300">Team Debrief</a>
+                    <a href="#conclusion" class="font-semibold inactive-nav hover:text-gray-900 transition-colors duration-300">Final Lap</a>
+                </nav>
+                <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-red-500">
+                    <span class="sr-only">Open main menu</span>
+                    <div class="w-6 h-0.5 bg-gray-800 mb-1.5"></div>
+                    <div class="w-6 h-0.5 bg-gray-800"></div>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden">
+            <a href="#overview" class="block py-2 px-4 text-sm hover:bg-gray-100">Overview</a>
+            <a href="#metrics" class="block py-2 px-4 text-sm hover:bg-gray-100">Metric Deep Dive</a>
+            <a href="#debrief" class="block py-2 px-4 text-sm hover:bg-gray-100">Team Debrief</a>
+            <a href="#conclusion" class="block py-2 px-4 text-sm hover:bg-gray-100">Final Lap</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        
+        <!-- Section 1: Overview -->
+        <section id="overview" class="mb-16 scroll-mt-20">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">The 2025 Web Performance Grand Prix</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">In Formula 1, milliseconds decide champions. Off the track, a team's website is its digital front line. This report analyzes which F1 team has the fastest website on the grid, testing on a modern 5G connection to see who truly delivers a world-class digital experience.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                 <h3 class="text-2xl font-bold text-gray-900 mb-4">Constructors' Championship: Final Standings</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Rank</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Team</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">PageSpeed Score</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">LCP (s)</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">INP (ms)</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">CLS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-table" class="bg-white divide-y divide-gray-200">
+                            <!-- JS will populate this -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Metric Deep Dive -->
+        <section id="metrics" class="mb-16 scroll-mt-20">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Metric Deep Dive</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">Who has the best "0-60 time" or the most "stable car"? Select a metric below to see how the teams stack up in a head-to-head comparison. Lower is better for all metrics except PageSpeed Score.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <div class="flex flex-wrap justify-center gap-2 sm:gap-4 mb-6">
+                    <button data-metric="pageSpeedScore" class="metric-btn bg-red-600 text-white px-4 py-2 rounded-full font-semibold shadow-md hover:bg-red-700 transition-all duration-200">PageSpeed Score</button>
+                    <button data-metric="ttfb" class="metric-btn bg-gray-200 text-gray-800 px-4 py-2 rounded-full font-semibold shadow-sm hover:bg-gray-300 transition-all duration-200">TTFB</button>
+                    <button data-metric="lcp" class="metric-btn bg-gray-200 text-gray-800 px-4 py-2 rounded-full font-semibold shadow-sm hover:bg-gray-300 transition-all duration-200">LCP</button>
+                    <button data-metric="inp" class="metric-btn bg-gray-200 text-gray-800 px-4 py-2 rounded-full font-semibold shadow-sm hover:bg-gray-300 transition-all duration-200">INP</button>
+                    <button data-metric="cls" class="metric-btn bg-gray-200 text-gray-800 px-4 py-2 rounded-full font-semibold shadow-sm hover:bg-gray-300 transition-all duration-200">CLS</button>
+                    <button data-metric="tti" class="metric-btn bg-gray-200 text-gray-800 px-4 py-2 rounded-full font-semibold shadow-sm hover:bg-gray-300 transition-all duration-200">TTI</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="metricsChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Team Debrief -->
+        <section id="debrief" class="mb-16 scroll-mt-20">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Team-by-Team Debrief</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">Go behind the pit wall. Click on a team's summary row to expand it for a detailed analysis of their digital performance.</p>
+            </div>
+            <div id="team-debrief-container" class="space-y-4">
+                <!-- JS will populate this -->
+            </div>
+        </section>
+
+        <!-- Section 4: Conclusion -->
+        <section id="conclusion" class="scroll-mt-20">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">The Chequered Flag: Final Thoughts</h2>
+            </div>
+            <div class="bg-white p-8 rounded-xl shadow-lg max-w-4xl mx-auto space-y-6 text-gray-700 leading-relaxed">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">The State of the Digital Grid</h3>
+                    <p>This analysis reveals a vast performance delta between the front-runners and the backmarkers. A fast website isn't black magic; it's the disciplined application of fundamentals. The top teams mastered image optimization, avoided render-blocking resources, and managed third-party scripts effectively. These are the core pillars of web performance.</p>
+                </div>
+                 <div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">The Tech Partner Paradox & Sponsorship Tax</h3>
+                    <p>A tech partner's logo on the car doesn't guarantee a fast site—the principles must be implemented. McLaren and Google show a successful synergy, while others struggle. Furthermore, teams like Racing Bulls and Stake F1 Sauber demonstrate the "Sponsorship Tax," where heavy third-party scripts for partners cripple performance, creating a conflict between revenue and fan experience.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">The Path to Pole Position</h3>
+                    <p>Achieving a fast website requires treating it with the same rigor as a race car. It demands a culture where performance is a core requirement, not an afterthought. The teams that invest in clean code, smart architecture, and a user-first mindset will not only top these charts—they will win the more important race for fan loyalty and engagement.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-gray-400">
+            <p>Analysis based on the "2025 Web Performance Grand Prix" report. All data is illustrative. Created for demonstration purposes.</p>
+        </div>
+    </footer>
+
+    <script>
+        const teamData = [
+            { id: 'mclaren', name: 'McLaren', rank: 1, constructorRank: 1, pageSpeedScore: 95, ttfb: 210, fcp: 1.2, lcp: 1.8, inp: 155, cls: 0.001, speedIndex: 1.7, tti: 2.1, color: '#FF8700', logoUrl: 'https://placehold.co/100x100/1F2937/FF8700?text=MCL', drivers: [{ name: 'Lando Norris', headshotUrl: 'img/lando-norris.jpg' }, { name: 'Oscar Piastri', headshotUrl: 'img/oscar-piastri.jpg' }], points: 350, budget: '$145M', paddockTalk: "McLaren's website is a papaya-fueled rocket ship. The moment you hit the URL, the page explodes into view with a blistering LCP of just 1.8 seconds. It feels less like loading a webpage and more like flipping a switch. Every button and link is instantly responsive, a testament to a well-oiled machine that feels as agile and precise as one of their cars hitting every apex perfectly on a qualifying lap.", engineerNotes: { right: ["Minimal JavaScript Execution: Avoids loading large, complex JS bundles on initial load, ensuring excellent INP and TTI.", "Aggressive Image Optimization: Serves correctly sized WebP images, a key contributor to their world-class LCP score.", "Efficient CSS Delivery: Inlines critical CSS for immediate rendering and loads non-critical styles asynchronously.", "Stable Layout: Near-perfect CLS score indicates all elements have their space reserved from the start."], improve: ["A minor optimization would be to add a `preconnect` hint for their CDN, `static-cdn.mclaren.com`, to shave another 50-100ms off resource load times."] } },
+            { id: 'ferrari', name: 'Ferrari', rank: 3, constructorRank: 2, pageSpeedScore: 82, ttfb: 410, fcp: 1.8, lcp: 2.9, inp: 225, cls: 0.005, speedIndex: 2.8, tti: 3.5, color: '#DC0000', logoUrl: 'https://placehold.co/100x100/1F2937/DC0000?text=FER', drivers: [{ name: 'Charles Leclerc', headshotUrl: 'img/charles-leclerc.jpg' }, { name: 'Lewis Hamilton', headshotUrl: 'img/lewis-hamilton.jpg' }], points: 298, budget: '$145M', paddockTalk: "Visiting the Ferrari website feels like an event. It's beautiful, dramatic, and full of passion. It loads reasonably quickly, but you can feel the weight of those gorgeous images. It’s like a powerful GT car—incredibly fast and stylish, but built more for a majestic cruise than a blistering, stripped-down lap time.", engineerNotes: { right: ["Exceptional Visual Stability: A benchmark for stability with a near-perfect CLS score.", "Clean Codebase: Well-structured HTML and CSS with minimal third-party scripts on the landing page.", "Strong Server Response: A very respectable TTFB indicates a robust back-end."], improve: ["Largest Contentful Paint (LCP): The 2.9s LCP is the team's Achilles' heel, caused by a large JPEG hero image. Adopting WebP or AVIF formats would provide a significant gain.", "Interaction to Next Paint (INP): An INP of 225ms ('Needs Improvement') is likely due to the browser decoding the large hero image. Optimizing the image would also improve INP."] } },
+            { id: 'mercedes', name: 'Mercedes', rank: 2, constructorRank: 3, pageSpeedScore: 88, ttfb: 350, fcp: 1.5, lcp: 2.4, inp: 190, cls: 0.015, speedIndex: 2.3, tti: 2.9, color: '#00D2BE', logoUrl: 'https://placehold.co/100x100/1F2937/00D2BE?text=MER', drivers: [{ name: 'George Russell', headshotUrl: 'img/george-russell.jpg' }, { name: 'Kimi Antonelli', headshotUrl: 'img/kimi-antonelli.jpg' }], points: 312, budget: '$145M', paddockTalk: "The Mercedes site feels like their modern F1 cars: powerful, packed with technology, and incredibly fast, but perhaps not as lightweight as the McLaren. The page loads quickly, and you can start reading articles or navigating menus almost immediately. It’s a premium, solid experience that befits a top-tier team.", engineerNotes: { right: ["Effective Lazy Loading: Correctly implements lazy loading for all 'below-the-fold' assets, reducing initial page weight.", "Good Caching Strategy: Employs effective browser caching, making repeat visits almost instant.", "Responsive and Stable: A solid INP and low CLS provide a reliable user experience."], improve: ["Third-Party Scripts: Several scripts for analytics and advertising contribute to main-thread blocking. Moving them to a web worker could improve interactivity.", "CSS Optimization: The main CSS file could be split into smaller, page-specific files to trim FCP and LCP times."] } },
+            { id: 'redbull', name: 'Red Bull Racing', rank: 4, constructorRank: 4, pageSpeedScore: 75, ttfb: 650, fcp: 2.1, lcp: 3.4, inp: 280, cls: 0.020, speedIndex: 3.3, tti: 4.2, color: '#0600EF', logoUrl: 'https://placehold.co/100x100/1F2937/0600EF?text=RBR', drivers: [{ name: 'Max Verstappen', headshotUrl: 'img/max-verstappen.jpg' }, { name: 'Yuki Tsunoda', headshotUrl: 'img/yuki-tsunoda.png' }], points: 255, budget: '$145M', paddockTalk: "The Red Bull site feels busy, much like their paddock on a race weekend. There's a lot going on. It loads at a decent pace, but it doesn't have the instant snap of McLaren or Mercedes. There's a slight but noticeable hesitation when you try to click on things, as if the site is thinking about it first.", engineerNotes: { right: ["Solid Visual Stability: A good CLS score means the layout is well-defined and doesn't shift.", "Modern Image Formats: Uses WebP images for main content, showing awareness of modern techniques."], improve: ["The Ecosystem Tax (TTFB & INP): Numerous requests to external domains for the Red Bull mothership incur connection overhead and block the main thread. Consolidating scripts or using `preconnect` hints is crucial.", "Render-Blocking Resources: Large CSS and JS files are loaded in the `<head>` without `async` or `defer`, blocking rendering and slowing down FCP."] } },
+            { id: 'astonmartin', name: 'Aston Martin', rank: 6, constructorRank: 5, pageSpeedScore: 65, ttfb: 720, fcp: 2.6, lcp: 4.4, inp: 350, cls: 0.080, speedIndex: 4.5, tti: 5.8, color: '#006F62', logoUrl: 'https://placehold.co/100x100/1F2937/006F62?text=AMR', drivers: [{ name: 'Fernando Alonso', headshotUrl: 'img/fernando-alonso.jpg' }, { name: 'Lance Stroll', headshotUrl: 'img/lance-stroll.jpg' }], points: 85, budget: '$145M', paddockTalk: "The Aston Martin site looks the part—it's sleek, stylish, and very green. But using it feels like trying to drive a beautiful car with the handbrake still on. It takes a while to load, and for a few frustrating seconds, you can't click on anything. The initial unresponsiveness creates a barrier, not a connection.", engineerNotes: { right: ["Good Visual Stability: A solid CLS result ensures the layout doesn't shift during load."], improve: ["JavaScript Bloat (INP/TTI): The primary culprit is the sheer amount of JS loaded upfront for the 'I / AM' membership platform. These scripts should be loaded on-demand, not for all users.", "Slow Server Response (TTFB): A slow TTFB suggests complex back-end queries. These need optimization.", "Unoptimized Images (LCP): Using large images without sufficient compression or modern formatting leads to a poor LCP."] } },
+            { id: 'williams', name: 'Williams', rank: 5, constructorRank: 6, pageSpeedScore: 68, ttfb: 580, fcp: 2.4, lcp: 4.1, inp: 310, cls: 0.110, speedIndex: 4.0, tti: 5.1, color: '#005AFF', logoUrl: 'https://placehold.co/100x100/1F2937/005AFF?text=WIL', drivers: [{ name: 'Alex Albon', headshotUrl: 'img/alex-albon.jpg' }, { name: 'Carlos Sainz', headshotUrl: 'img/carlos-sainz.jpg' }], points: 45, budget: '$140M', paddockTalk: "The Williams website experience is a bit like their recent on-track performance: you can see the ambition, but the execution isn't quite there yet. The page takes a noticeable time to fully appear, and just as you're about to click, the layout shifts, which is quite jarring. It has potential but needs refinement.", engineerNotes: { right: ["Decent Server Time (TTFB): A respectable TTFB shows the server infrastructure is not the primary bottleneck."], improve: ["Largest Contentful Paint (LCP): A poor 4.1s LCP is caused by a large, unoptimized JPEG. Switching to WebP is the most impactful change.", "Cumulative Layout Shift (CLS): A poor CLS score is caused by injected banners without reserved space. This is fixable by specifying container dimensions in CSS.", "Main-Thread Blocking (INP/TTI): Significant JavaScript for integrations blocks the main thread. Deferring non-essential scripts is crucial."] } },
+            { id: 'racingbulls', name: 'Racing Bulls', rank: 9, constructorRank: 7, pageSpeedScore: 45, ttfb: 1100, fcp: 3.8, lcp: 6.5, inp: 530, cls: 0.180, speedIndex: 6.9, tti: 8.9, color: '#0000FF', logoUrl: 'https://placehold.co/100x100/1F2937/0000FF?text=RB', drivers: [{ name: 'Liam Lawson', headshotUrl: 'img/liam-lawson.png' }, { name: 'Daniel Ricciardo', headshotUrl: 'img/isac-hadjar.jpg' }], points: 12, budget: '$140M', paddockTalk: "The Racing Bulls website feels like it was designed by a committee, and a slow one at that. It takes an age to load, and when it finally does, it's unresponsive. This is the digital equivalent of a car designed with parts from three different teams that don't fit together properly.", engineerNotes: { right: ["The overwhelming negative impact of external factors makes it difficult to praise any specific aspect."], improve: ["Excessive Third-Party Requests (TTFB/INP/TTI): The core problem is the sheer number of blocking requests to Visa, Cash App, and Red Bull domains. A unified tagging and analytics strategy is desperately needed.", "Image and Asset Hosting: Assets should be consolidated onto a single, high-performance CDN to reduce connection overhead."] } },
+            { id: 'alpine', name: 'Alpine', rank: 7, constructorRank: 8, pageSpeedScore: 58, ttfb: 850, fcp: 2.9, lcp: 5.2, inp: 390, cls: 0.150, speedIndex: 5.3, tti: 6.5, color: '#0090FF', logoUrl: 'https://placehold.co/100x100/1F2937/0090FF?text=ALP', drivers: [{ name: 'Pierre Gasly', headshotUrl: 'img/pierre-gasly.jpg' }, { name: 'Franco Colapinto', headshotUrl: 'img/franco-colapinto.png' }], points: 22, budget: '$142M', paddockTalk: "The Alpine website is a frustrating experience. You wait, and then you wait some more. When things finally start to appear, the page jumps around. It doesn't feel cohesive or fast, lacking the precision and elegance one might associate with the Alpine brand. It's a performance that needs a serious strategy rethink.", engineerNotes: { right: ["There are few standout positive aspects of the site's performance."], improve: ["Server and Back-End (TTFB): A poor TTFB points to a slow back-end or underpowered server.", "Render-Blocking Resources (FCP/LCP): Multiple large CSS and JS files block rendering. This is a fundamental performance mistake.", "Layout Instability (CLS): A poor CLS is caused by elements loading without defined dimensions. Reserving space in CSS is a straightforward fix.", "Code Minification: CSS and JS files are not minified, increasing file sizes unnecessarily."] } },
+            { id: 'stake', name: 'Kick Sauber', rank: 8, constructorRank: 9, pageSpeedScore: 49, ttfb: 910, fcp: 3.3, lcp: 5.8, inp: 480, cls: 0.210, speedIndex: 6.1, tti: 7.8, color: '#00E100', logoUrl: 'https://placehold.co/100x100/1F2937/00E100?text=STK', drivers: [{ name: 'Nico Hulkenberg', headshotUrl: 'img/nico-hulkenberg.jpg' }, { name: 'Gabriel Bortoleto', headshotUrl: 'img/gabriel-bortoleto.jpg' }], points: 5, budget: '$138M', paddockTalk: "Using the Sauber website is an exercise in patience. It's slow to load, and the page visibly reconstructs itself multiple times. Just when you think it's safe to interact, the entire page freezes as a sponsor element loads. It feels less like a high-tech F1 site and more like a slow, ad-heavy news portal.", engineerNotes: { right: ["It is difficult to identify areas where the site excels from a performance perspective."], improve: ["Third-Party Script Impact (INP/CLS/TTI): The site's disastrous scores are directly attributable to heavy, blocking scripts from sponsors. These must be lazy-loaded or integrated more efficiently.", "Fundamental Optimizations: Beyond the sponsor issue, the site also fails on fundamentals like image optimization and render-blocking resources."] } },
+            { id: 'haas', name: 'Haas F1 Team', rank: 10, constructorRank: 10, pageSpeedScore: 40, ttfb: 1350, fcp: 4.2, lcp: 7.1, inp: 590, cls: 0.255, speedIndex: 7.5, tti: 10.2, color: '#B8B8B8', logoUrl: 'https://placehold.co/100x100/1F2937/FFFFFF?text=HAA', drivers: [{ name: 'Esteban Ocon', headshotUrl: 'img/esteban-ocon.jpg' }, { name: 'Oliver Bearman', headshotUrl: 'img/oliver-bearman.jpg' }], points: 2, budget: '$135M', paddockTalk: "The Haas website is, frankly, a digital disaster. It is incredibly slow, the page jumps around violently, and it's completely unresponsive for what feels like an eternity. In a sport defined by cutting-edge technology, this level of digital performance is unacceptable.", engineerNotes: { right: [], improve: ["Server Performance (TTFB): A TTFB of 1.35s is extremely poor and indicates a critical issue with the hosting environment.", "Asset Optimization (LCP): Serving massive, multi-megabyte images is a basic failure of web development fundamentals.", "Render-Blocking Resources (FCP/TTI): Heavy scripts for the 'Haas+' portal are loaded for all users and must be deferred.", "Layout Instability (CLS): A severe CLS score is caused by ads and images loading without dimensions, a simple but ignored fix."] } }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tableBody = document.getElementById('results-table');
+            const debriefContainer = document.getElementById('team-debrief-container');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const navLinks = document.querySelectorAll('header nav a, #mobile-menu a');
+
+            function populateTable() {
+                teamData.forEach(team => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${team.rank}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-800">
+                            <div class="flex items-center">
+                                <div class="w-1 h-6 mr-3" style="background-color: ${team.color};"></div>
+                                ${team.name}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold ${team.pageSpeedScore >= 90 ? 'text-green-600' : team.pageSpeedScore >= 50 ? 'text-yellow-600' : 'text-red-600'}">${team.pageSpeedScore}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${team.lcp}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${team.inp}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${team.cls}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+
+            function populateDebrief() {
+                const sortedByRank = [...teamData].sort((a,b) => a.rank - b.rank);
+
+                sortedByRank.forEach(team => {
+                    const engineerNotesRight = team.engineerNotes.right.map(note => `<li class="flex items-start"><span class="text-green-500 mr-2 mt-1 flex-shrink-0">✓</span><span>${note}</span></li>`).join('');
+                    const engineerNotesImprove = team.engineerNotes.improve.map(note => `<li class="flex items-start"><span class="text-yellow-500 mr-2 mt-1 flex-shrink-0">!</span><span>${note}</span></li>`).join('');
+                    
+                    const driversHtml = team.drivers.map(driver => `<span class="font-semibold">${driver.name}</span>`).join(' & ');
+
+                    const accordionItem = document.createElement('div');
+                    accordionItem.className = 'bg-white rounded-xl shadow-lg overflow-hidden transition-shadow hover:shadow-xl';
+                    
+                    accordionItem.innerHTML = `
+                        <button class="accordion-header w-full p-4 text-left cursor-pointer" style="border-left: 5px solid ${team.color};">
+                            <div class="grid grid-cols-2 md:grid-cols-6 items-center gap-4">
+                                <div class="col-span-2 md:col-span-2 flex items-center gap-4">
+                                    <span class="text-2xl font-bold text-gray-400">${team.rank}</span>
+                                    <span class="text-lg font-bold text-gray-900">${team.name}</span>
+                                </div>
+                                <div class="hidden md:block col-span-2">
+                                    <p class="text-sm text-gray-600">${driversHtml}</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-xs text-gray-500">Score</p>
+                                    <p class="text-xl font-bold ${team.pageSpeedScore >= 90 ? 'text-green-600' : team.pageSpeedScore >= 50 ? 'text-yellow-600' : 'text-red-600'}">${team.pageSpeedScore}</p>
+                                </div>
+                                <div class="flex justify-end items-center">
+                                    <div class="text-right mr-4 hidden sm:block">
+                                        <p class="text-xs text-gray-500">WCC: P${team.constructorRank}</p>
+                                        <p class="font-semibold">${team.points} pts</p>
+                                    </div>
+                                    <div class="accordion-icon">
+                                        <div class="w-3 h-0.5 bg-gray-600 transform rotate-90"></div>
+                                        <div class="w-3 h-0.5 bg-gray-600 -mt-0.5"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-6 bg-gray-50 border-t border-gray-200">
+                                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    <div class="lg:col-span-1 space-y-6">
+                                        <div>
+                                            <h4 class="text-lg font-bold text-gray-900 mb-3">Team Info</h4>
+                                            <div class="space-y-4">
+                                                <div class="flex items-center space-x-3">
+                                                    <img src="${team.drivers[0].headshotUrl}" alt="${team.drivers[0].name}" class="w-12 h-12 rounded-full bg-gray-200 object-cover">
+                                                    <span class="font-semibold text-gray-700">${team.drivers[0].name}</span>
+                                                </div>
+                                                <div class="flex items-center space-x-3">
+                                                    <img src="${team.drivers[1].headshotUrl}" alt="${team.drivers[1].name}" class="w-12 h-12 rounded-full bg-gray-200 object-cover">
+                                                    <span class="font-semibold text-gray-700">${team.drivers[1].name}</span>
+                                                </div>
+                                                <div class="pt-2 border-t border-gray-200">
+                                                    <div class="flex justify-between items-baseline">
+                                                        <span class="font-semibold text-gray-600">Budget:</span>
+                                                        <span class="font-bold text-lg text-gray-900">${team.budget}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-lg font-bold text-gray-900 mb-3">Paddock Talk</h4>
+                                            <p class="text-gray-700 leading-relaxed italic text-sm">"${team.paddockTalk}"</p>
+                                        </div>
+                                    </div>
+                                    <div class="lg:col-span-2">
+                                        <h4 class="text-lg font-bold text-gray-900 mb-3">Race Engineer's Notes</h4>
+                                        <div class="bg-white p-4 rounded-lg space-y-4 border border-gray-200">
+                                            <div>
+                                                <h5 class="font-semibold text-gray-800 mb-2">What Went Right:</h5>
+                                                <ul class="space-y-2 text-sm text-gray-600">${engineerNotesRight}</ul>
+                                            </div>
+                                            ${engineerNotesImprove.length > 0 ? `
+                                            <div>
+                                                <h5 class="font-semibold text-gray-800 mb-2">Room for Improvement:</h5>
+                                                <ul class="space-y-2 text-sm text-gray-600">${engineerNotesImprove}</ul>
+                                            </div>` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    debriefContainer.appendChild(accordionItem);
+                });
+
+                const headers = debriefContainer.querySelectorAll('.accordion-header');
+                headers.forEach(header => {
+                    header.addEventListener('click', () => {
+                        const content = header.nextElementSibling;
+                        const icon = header.querySelector('.accordion-icon');
+                        const isOpen = content.style.maxHeight;
+
+                        // Close all other accordions
+                        debriefContainer.querySelectorAll('.accordion-content').forEach(c => {
+                            if (c !== content) {
+                                c.style.maxHeight = null;
+                            }
+                        });
+                         debriefContainer.querySelectorAll('.accordion-icon').forEach(i => {
+                            if (i !== icon) {
+                                i.style.transform = 'rotate(0deg)';
+                            }
+                        });
+                        
+                        // Toggle the clicked accordion
+                        if (isOpen) {
+                            content.style.maxHeight = null;
+                            icon.style.transform = 'rotate(0deg)';
+                        } else {
+                            content.style.maxHeight = content.scrollHeight + "px";
+                            icon.style.transform = 'rotate(45deg)';
+                        }
+                    });
+                });
+            }
+            
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Chart.js implementation
+            const ctx = document.getElementById('metricsChart').getContext('2d');
+            let metricsChart;
+
+            const metricConfig = {
+                pageSpeedScore: { label: 'PageSpeed Score (Higher is better)', reverse: false },
+                ttfb: { label: 'Time to First Byte (ms)', reverse: true },
+                lcp: { label: 'Largest Contentful Paint (s)', reverse: true },
+                inp: { label: 'Interaction to Next Paint (ms)', reverse: true },
+                cls: { label: 'Cumulative Layout Shift', reverse: true },
+                tti: { label: 'Time to Interactive (s)', reverse: true },
+            };
+
+            function createOrUpdateChart(metric) {
+                const config = metricConfig[metric];
+                const sortedData = [...teamData].sort((a, b) => {
+                    return config.reverse ? a[metric] - b[metric] : b[metric] - a[metric];
+                });
+
+                const chartData = {
+                    labels: sortedData.map(t => t.name),
+                    datasets: [{
+                        label: config.label,
+                        data: sortedData.map(t => t[metric]),
+                        backgroundColor: sortedData.map(t => t.color),
+                        borderColor: sortedData.map(t => t.color),
+                        borderWidth: 1
+                    }]
+                };
+
+                if (metricsChart) {
+                    metricsChart.data = chartData;
+                    metricsChart.options.scales.y.reverse = false;
+                    metricsChart.options.plugins.tooltip.callbacks.label = (context) => {
+                         let label = context.dataset.label || '';
+                         if (label) { label += ': '; }
+                         if (context.parsed.y !== null) { label += context.parsed.y; }
+                         return label;
+                    };
+                    metricsChart.update();
+                } else {
+                    metricsChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: chartData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            indexAxis: 'y',
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    grid: { color: '#E5E7EB' }
+                                },
+                                y: {
+                                    grid: { display: false }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    backgroundColor: '#111827',
+                                    titleFont: { weight: 'bold' },
+                                    bodyFont: { size: 14 },
+                                    padding: 12,
+                                    cornerRadius: 6,
+                                    callbacks: {
+                                        label: (context) => {
+                                             let label = context.dataset.label || '';
+                                             if (label) { label += ': '; }
+                                             if (context.parsed.y !== null) { label += context.parsed.y; }
+                                             return label;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            document.querySelectorAll('.metric-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    document.querySelectorAll('.metric-btn').forEach(btn => {
+                        btn.classList.remove('bg-red-600', 'text-white');
+                        btn.classList.add('bg-gray-200', 'text-gray-800');
+                    });
+                    e.target.classList.add('bg-red-600', 'text-white');
+                    e.target.classList.remove('bg-gray-200', 'text-gray-800');
+                    createOrUpdateChart(e.target.dataset.metric);
+                });
+            });
+            
+            // Intersection Observer for nav highlighting
+            const sections = document.querySelectorAll('section');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active-nav');
+                            link.classList.add('inactive-nav');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active-nav');
+                                link.classList.remove('inactive-nav');
+                            }
+                        });
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+
+            sections.forEach(section => observer.observe(section));
+
+            // Initial calls
+            populateTable();
+            populateDebrief();
+            createOrUpdateChart('pageSpeedScore');
+        });
+    </script>
+</body>
+</html>
