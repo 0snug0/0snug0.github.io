@@ -170,16 +170,244 @@
 
     <script>
         const teamData = [
-            { id: 'mclaren', name: 'McLaren', rank: 1, constructorRank: 1, pageSpeedScore: 95, ttfb: 210, fcp: 1.2, lcp: 1.8, inp: 155, cls: 0.001, speedIndex: 1.7, tti: 2.1, color: '#FF8700', logoUrl: 'https://placehold.co/100x100/1F2937/FF8700?text=MCL', drivers: [{ name: 'Lando Norris', headshotUrl: 'img/lando-norris.jpg' }, { name: 'Oscar Piastri', headshotUrl: 'img/oscar-piastri.jpg' }], points: 460, budget: '$145M', paddockTalk: "McLaren's website is a papaya-fueled rocket ship. The moment you hit the URL, the page explodes into view with a blistering LCP of just 1.8 seconds. It feels less like loading a webpage and more like flipping a switch. Every button and link is instantly responsive, a testament to a well-oiled machine that feels as agile and precise as one of their cars hitting every apex perfectly on a qualifying lap.", engineerNotes: { right: ["Minimal JavaScript Execution: Avoids loading large, complex JS bundles on initial load, ensuring excellent INP and TTI.", "Aggressive Image Optimization: Serves correctly sized WebP images, a key contributor to their world-class LCP score.", "Efficient CSS Delivery: Inlines critical CSS for immediate rendering and loads non-critical styles asynchronously.", "Stable Layout: Near-perfect CLS score indicates all elements have their space reserved from the start."], improve: ["A minor optimization would be to add a `preconnect` hint for their CDN, `static-cdn.mclaren.com`, to shave another 50-100ms off resource load times."] } },
-            { id: 'ferrari', name: 'Ferrari', rank: 3, constructorRank: 2, pageSpeedScore: 82, ttfb: 410, fcp: 1.8, lcp: 2.9, inp: 225, cls: 0.005, speedIndex: 2.8, tti: 3.5, color: '#DC0000', logoUrl: 'https://placehold.co/100x100/1F2937/DC0000?text=FER', drivers: [{ name: 'Charles Leclerc', headshotUrl: 'img/charles-leclerc.jpg' }, { name: 'Lewis Hamilton', headshotUrl: 'img/lewis-hamilton.jpg' }], points: 222, budget: '$145M', paddockTalk: "Visiting the Ferrari website feels like an event. It's beautiful, dramatic, and full of passion. It loads reasonably quickly, but you can feel the weight of those gorgeous images. It’s like a powerful GT car—incredibly fast and stylish, but built more for a majestic cruise than a blistering, stripped-down lap time.", engineerNotes: { right: ["Exceptional Visual Stability: A benchmark for stability with a near-perfect CLS score.", "Clean Codebase: Well-structured HTML and CSS with minimal third-party scripts on the landing page.", "Strong Server Response: A very respectable TTFB indicates a robust back-end."], improve: ["Largest Contentful Paint (LCP): The 2.9s LCP is the team's Achilles' heel, caused by a large JPEG hero image. Adopting WebP or AVIF formats would provide a significant gain.", "Interaction to Next Paint (INP): An INP of 225ms ('Needs Improvement') is likely due to the browser decoding the large hero image. Optimizing the image would also improve INP."] } },
-            { id: 'mercedes', name: 'Mercedes', rank: 2, constructorRank: 3, pageSpeedScore: 88, ttfb: 350, fcp: 1.5, lcp: 2.4, inp: 190, cls: 0.015, speedIndex: 2.3, tti: 2.9, color: '#00D2BE', logoUrl: 'https://placehold.co/100x100/1F2937/00D2BE?text=MER', drivers: [{ name: 'George Russell', headshotUrl: 'img/george-russell.jpg' }, { name: 'Kimi Antonelli', headshotUrl: 'img/kimi-antonelli.jpg' }], points: 210, budget: '$145M', paddockTalk: "The Mercedes site feels like their modern F1 cars: powerful, packed with technology, and incredibly fast, but perhaps not as lightweight as the McLaren. The page loads quickly, and you can start reading articles or navigating menus almost immediately. It’s a premium, solid experience that befits a top-tier team.", engineerNotes: { right: ["Effective Lazy Loading: Correctly implements lazy loading for all 'below-the-fold' assets, reducing initial page weight.", "Good Caching Strategy: Employs effective browser caching, making repeat visits almost instant.", "Responsive and Stable: A solid INP and low CLS provide a reliable user experience."], improve: ["Third-Party Scripts: Several scripts for analytics and advertising contribute to main-thread blocking. Moving them to a web worker could improve interactivity.", "CSS Optimization: The main CSS file could be split into smaller, page-specific files to trim FCP and LCP times."] } },
-            { id: 'redbull', name: 'Red Bull Racing', rank: 4, constructorRank: 4, pageSpeedScore: 75, ttfb: 650, fcp: 2.1, lcp: 3.4, inp: 280, cls: 0.020, speedIndex: 3.3, tti: 4.2, color: '#0600EF', logoUrl: 'https://placehold.co/100x100/1F2937/0600EF?text=RBR', drivers: [{ name: 'Max Verstappen', headshotUrl: 'img/max-verstappen.jpg' }, { name: 'Yuki Tsunoda', headshotUrl: 'img/yuki-tsunoda.png' }], points: 172, budget: '$145M', paddockTalk: "The Red Bull site feels busy, much like their paddock on a race weekend. There's a lot going on. It loads at a decent pace, but it doesn't have the instant snap of McLaren or Mercedes. There's a slight but noticeable hesitation when you try to click on things, as if the site is thinking about it first.", engineerNotes: { right: ["Solid Visual Stability: A good CLS score means the layout is well-defined and doesn't shift.", "Modern Image Formats: Uses WebP images for main content, showing awareness of modern techniques."], improve: ["The Ecosystem Tax (TTFB & INP): Numerous requests to external domains for the Red Bull mothership incur connection overhead and block the main thread. Consolidating scripts or using `preconnect` hints is crucial.", "Render-Blocking Resources: Large CSS and JS files are loaded in the `<head>` without `async` or `defer`, blocking rendering and slowing down FCP."] } },
-            { id: 'astonmartin', name: 'Aston Martin', rank: 6, constructorRank: 8, pageSpeedScore: 65, ttfb: 720, fcp: 2.6, lcp: 4.4, inp: 350, cls: 0.080, speedIndex: 4.5, tti: 5.8, color: '#006F62', logoUrl: 'https://placehold.co/100x100/1F2937/006F62?text=AMR', drivers: [{ name: 'Fernando Alonso', headshotUrl: 'img/fernando-alonso.jpg' }, { name: 'Lance Stroll', headshotUrl: 'img/lance-stroll.jpg' }], points: 36, budget: '$145M', paddockTalk: "The Aston Martin site looks the part—it's sleek, stylish, and very green. But using it feels like trying to drive a beautiful car with the handbrake still on. It takes a while to load, and for a few frustrating seconds, you can't click on anything. The initial unresponsiveness creates a barrier, not a connection.", engineerNotes: { right: ["Good Visual Stability: A solid CLS result ensures the layout doesn't shift during load."], improve: ["JavaScript Bloat (INP/TTI): The primary culprit is the sheer amount of JS loaded upfront for the 'I / AM' membership platform. These scripts should be loaded on-demand, not for all users.", "Slow Server Response (TTFB): A slow TTFB suggests complex back-end queries. These need optimization.", "Unoptimized Images (LCP): Using large images without sufficient compression or modern formatting leads to a poor LCP."] } },
-            { id: 'williams', name: 'Williams', rank: 5, constructorRank: 5, pageSpeedScore: 68, ttfb: 580, fcp: 2.4, lcp: 4.1, inp: 310, cls: 0.110, speedIndex: 4.0, tti: 5.1, color: '#005AFF', logoUrl: 'https://placehold.co/100x100/1F2937/005AFF?text=WIL', drivers: [{ name: 'Alex Albon', headshotUrl: 'img/alex-albon.jpg' }, { name: 'Carlos Sainz', headshotUrl: 'img/carlos-sainz.jpg' }], points: 59, budget: '$140M', paddockTalk: "The Williams website experience is a bit like their recent on-track performance: you can see the ambition, but the execution isn't quite there yet. The page takes a noticeable time to fully appear, and just as you're about to click, the layout shifts, which is quite jarring. It has potential but needs refinement.", engineerNotes: { right: ["Decent Server Time (TTFB): A respectable TTFB shows the server infrastructure is not the primary bottleneck."], improve: ["Largest Contentful Paint (LCP): A poor 4.1s LCP is caused by a large, unoptimized JPEG. Switching to WebP is the most impactful change.", "Cumulative Layout Shift (CLS): A poor CLS score is caused by injected banners without reserved space. This is fixable by specifying container dimensions in CSS.", "Main-Thread Blocking (INP/TTI): Significant JavaScript for integrations blocks the main thread. Deferring non-essential scripts is crucial."] } },
-            { id: 'racingbulls', name: 'Racing Bulls', rank: 9, constructorRank: 7, pageSpeedScore: 45, ttfb: 1100, fcp: 3.8, lcp: 6.5, inp: 530, cls: 0.180, speedIndex: 6.9, tti: 8.9, color: '#0000FF', logoUrl: 'https://placehold.co/100x100/1F2937/0000FF?text=RB', drivers: [{ name: 'Liam Lawson', headshotUrl: 'img/liam-lawson.png' }, { name: 'Daniel Ricciardo', headshotUrl: 'img/isac-hadjar.jpg' }], points: 36, budget: '$140M', paddockTalk: "The Racing Bulls website feels like it was designed by a committee, and a slow one at that. It takes an age to load, and when it finally does, it's unresponsive. This is the digital equivalent of a car designed with parts from three different teams that don't fit together properly.", engineerNotes: { right: ["The overwhelming negative impact of external factors makes it difficult to praise any specific aspect."], improve: ["Excessive Third-Party Requests (TTFB/INP/TTI): The core problem is the sheer number of blocking requests to Visa, Cash App, and Red Bull domains. A unified tagging and analytics strategy is desperately needed.", "Image and Asset Hosting: Assets should be consolidated onto a single, high-performance CDN to reduce connection overhead."] } },
-            { id: 'alpine', name: 'Alpine', rank: 7, constructorRank: 10, pageSpeedScore: 58, ttfb: 850, fcp: 2.9, lcp: 5.2, inp: 390, cls: 0.150, speedIndex: 5.3, tti: 6.5, color: '#0090FF', logoUrl: 'https://placehold.co/100x100/1F2937/0090FF?text=ALP', drivers: [{ name: 'Pierre Gasly', headshotUrl: 'img/pierre-gasly.jpg' }, { name: 'Franco Colapinto', headshotUrl: 'img/franco-colapinto.png' }], points: 19, budget: '$142M', paddockTalk: "The Alpine website is a frustrating experience. You wait, and then you wait some more. When things finally start to appear, the page jumps around. It doesn't feel cohesive or fast, lacking the precision and elegance one might associate with the Alpine brand. It's a performance that needs a serious strategy rethink.", engineerNotes: { right: ["There are few standout positive aspects of the site's performance."], improve: ["Server and Back-End (TTFB): A poor TTFB points to a slow back-end or underpowered server.", "Render-Blocking Resources (FCP/LCP): Multiple large CSS and JS files block rendering. This is a fundamental performance mistake.", "Layout Instability (CLS): A poor CLS is caused by elements loading without defined dimensions. Reserving space in CSS is a straightforward fix.", "Code Minification: CSS and JS files are not minified, increasing file sizes unnecessarily."] } },
-            { id: 'stake', name: 'Kick Sauber', rank: 8, constructorRank: 6, pageSpeedScore: 49, ttfb: 910, fcp: 3.3, lcp: 5.8, inp: 480, cls: 0.210, speedIndex: 6.1, tti: 7.8, color: '#00E100', logoUrl: 'https://placehold.co/100x100/1F2937/00E100?text=STK', drivers: [{ name: 'Nico Hulkenberg', headshotUrl: 'img/nico-hulkenberg.jpg' }, { name: 'Gabriel Bortoleto', headshotUrl: 'img/gabriel-bortoleto.jpg' }], points: 41, budget: '$138M', paddockTalk: "Using the Sauber website is an exercise in patience. It's slow to load, and the page visibly reconstructs itself multiple times. Just when you think it's safe to interact, the entire page freezes as a sponsor element loads. It feels less like a high-tech F1 site and more like a slow, ad-heavy news portal.", engineerNotes: { right: ["It is difficult to identify areas where the site excels from a performance perspective."], improve: ["Third-Party Script Impact (INP/CLS/TTI): The site's disastrous scores are directly attributable to heavy, blocking scripts from sponsors. These must be lazy-loaded or integrated more efficiently.", "Fundamental Optimizations: Beyond the sponsor issue, the site also fails on fundamentals like image optimization and render-blocking resources."] } },
-            { id: 'haas', name: 'Haas F1 Team', rank: 10, constructorRank: 9, pageSpeedScore: 40, ttfb: 1350, fcp: 4.2, lcp: 7.1, inp: 590, cls: 0.255, speedIndex: 7.5, tti: 10.2, color: '#B8B8B8', logoUrl: 'https://placehold.co/100x100/1F2937/FFFFFF?text=HAA', drivers: [{ name: 'Esteban Ocon', headshotUrl: 'img/esteban-ocon.jpg' }, { name: 'Oliver Bearman', headshotUrl: 'img/oliver-bearman.jpg' }], points: 29, budget: '$135M', paddockTalk: "The Haas website is, frankly, a digital disaster. It is incredibly slow, the page jumps around violently, and it's completely unresponsive for what feels like an eternity. In a sport defined by cutting-edge technology, this level of digital performance is unacceptable.", engineerNotes: { right: [], improve: ["Server Performance (TTFB): A TTFB of 1.35s is extremely poor and indicates a critical issue with the hosting environment.", "Asset Optimization (LCP): Serving massive, multi-megabyte images is a basic failure of web development fundamentals.", "Render-Blocking Resources (FCP/TTI): Heavy scripts for the 'Haas+' portal are loaded for all users and must be deferred.", "Layout Instability (CLS): A severe CLS score is caused by ads and images loading without dimensions, a simple but ignored fix."] } }
+            { 
+                id: 'mclaren', 
+                name: 'McLaren', 
+                website: 'https://www.mclaren.com/racing/formula-1/',
+                rank: 1, constructorRank: 1, 
+                pageSpeedScore: 95, 
+                ttfb: 210, 
+                fcp: 1.2, 
+                lcp: 1.8, 
+                inp: 155, 
+                cls: 0.001, 
+                speedIndex: 1.7, 
+                tti: 2.1, 
+                color: '#FF8700', 
+                logoUrl: 'https://placehold.co/100x100/1F2937/FF8700?text=MCL', 
+                drivers: [
+                    { name: 'Lando Norris', headshotUrl: 'img/lando-norris.jpg' }, 
+                    { name: 'Oscar Piastri', headshotUrl: 'img/oscar-piastri.jpg' }
+                ], 
+                points: 460, 
+                budget: '$145M', 
+                paddockTalk: "Currently leading the Constructors' Championship on track, the Woking-based team has mirrored its racing success in the digital realm. With a high-profile technology partnership with Google Chrome, the expectations for their website are sky-high. A team partnered with Chrome browser simply cannot have a slow website. Fortunately, they deliver a performance worthy of a world champion.", 
+                engineerNotes: { right: ["Minimal JavaScript Execution: Avoids loading large, complex JS bundles on initial load, ensuring excellent INP and TTI.", "Aggressive Image Optimization: Serves correctly sized WebP images, a key contributor to their world-class LCP score.", "Efficient CSS Delivery: Inlines critical CSS for immediate rendering and loads non-critical styles asynchronously.", "Stable Layout: Near-perfect CLS score indicates all elements have their space reserved from the start."],  improve: ["A minor optimization would be to add a `preconnect` hint for their CDN, `static-cdn.mclaren.com`, to shave another 50-100ms off resource load times."] } },
+            { 
+                id: 'ferrari', 
+                name: 'Ferrari', 
+                website: 'https://www.ferrari.com/en-EN/formula1',
+                rank: 3, 
+                constructorRank: 2, 
+                pageSpeedScore: 82, 
+                ttfb: 410, 
+                fcp: 1.8, 
+                lcp: 2.9, 
+                inp: 225, 
+                cls: 0.005, 
+                speedIndex: 2.8, 
+                tti: 3.5, 
+                color: '#DC0000', 
+                logoUrl: 'https://placehold.co/100x100/1F2937/DC0000?text=FER', 
+                drivers: [
+                    { name: 'Charles Leclerc', headshotUrl: 'img/charles-leclerc.jpg' }, 
+                    { name: 'Lewis Hamilton', headshotUrl: 'img/lewis-hamilton.jpg' }
+                ], 
+                points: 222, 
+                budget: '$145M', 
+                paddockTalk: "Visiting the Ferrari website feels like an event. It's beautiful, dramatic, and full of passion. It loads reasonably quickly, but you can feel the weight of those gorgeous images. It’s like a powerful GT car—incredibly fast and stylish, but built more for a majestic cruise than a blistering, stripped-down lap time.", 
+                engineerNotes: { right: ["Exceptional Visual Stability: A benchmark for stability with a near-perfect CLS score.", "Clean Codebase: Well-structured HTML and CSS with minimal third-party scripts on the landing page.", "Strong Server Response: A very respectable TTFB indicates a robust back-end."], improve: ["Largest Contentful Paint (LCP): The 2.9s LCP is the team's Achilles' heel, caused by a large JPEG hero image. Adopting WebP or AVIF formats would provide a significant gain.", "Interaction to Next Paint (INP): An INP of 225ms ('Needs Improvement') is likely due to the browser decoding the large hero image. Optimizing the image would also improve INP."] }
+            },
+            { 
+                id: 'mercedes', 
+                name: 'Mercedes', 
+                website: 'https://www.mercedesamgf1.com/', 
+                rank: 2, 
+                constructorRank: 3,
+                pageSpeedScore: 88,
+                ttfb: 350,
+                fcp: 1.5,
+                lcp: 2.4,
+                inp: 190,
+                cls: 0.015,
+                speedIndex: 2.3,
+                tti: 2.9,
+                color: '#00D2BE',
+                logoUrl: 'https://placehold.co/100x100/1F2937/00D2BE?text=MER',
+                drivers: [
+                    { name: 'George Russell', headshotUrl: 'img/george-russell.jpg' },
+                    { name: 'Kimi Antonelli', headshotUrl: 'img/kimi-antonelli.jpg' }
+                ],
+                points: 210,
+                budget: '$145M',
+                paddockTalk: "The Mercedes site feels like their modern F1 cars: powerful, packed with technology, and incredibly fast, but perhaps not as lightweight as the McLaren. The page loads quickly, and you can start reading articles or navigating menus almost immediately. It’s a premium, solid experience that befits a top-tier team.",
+                engineerNotes: { right: ["Effective Lazy Loading: Correctly implements lazy loading for all 'below-the-fold' assets, reducing initial page weight.", "Good Caching Strategy: Employs effective browser caching, making repeat visits almost instant.", "Responsive and Stable: A solid INP and low CLS provide a reliable user experience."],improve: ["Third-Party Scripts: Several scripts for analytics and advertising contribute to main-thread blocking. Moving them to a web worker could improve interactivity.", "CSS Optimization: The main CSS file could be split into smaller,page-specific files to trim FCP and LCP times."] } 
+            },
+            { 
+                id: 'redbull',
+                name: 'Red Bull Racing',
+                website: 'https://www.redbullracing.com/int-en',
+                rank: 4,
+                constructorRank: 4,
+                pageSpeedScore: 75,
+                ttfb: 650,
+                fcp: 2.1,
+                lcp: 3.4,
+                inp: 280,
+                cls: 0.020,
+                speedIndex: 3.3,
+                tti: 4.2,
+                color: '#0600EF',
+                logoUrl: 'https://placehold.co/100x100/1F2937/0600EF?text=RBR',
+                drivers: [
+                    { name: 'Max Verstappen', headshotUrl: 'img/max-verstappen.jpg' },
+                    { name: 'Yuki Tsunoda', headshotUrl: 'img/yuki-tsunoda.png' }
+                ],
+                points: 172,
+                budget: '$145M',
+                paddockTalk: "The Red Bull site feels busy, much like their paddock on a race weekend. There's a lot going on. It loads at a decent pace, but it doesn't have the instant snap of McLaren or Mercedes. There's a slight but noticeable hesitation when you try to click on things, as if the site is thinking about it first.", 
+                engineerNotes: { right: ["Solid Visual Stability: A good CLS score means the layout is well-defined and doesn't shift.", "Modern Image Formats: Uses WebP images for main content, showing awareness of modern techniques."], improve: ["The Ecosystem Tax (TTFB & INP): Numerous requests to external domains for the Red Bull mothership incur connection overhead and block the main thread. Consolidating scripts or using `preconnect` hints is crucial.", "Render-Blocking Resources: Large CSS and JS files are loaded in the `<head>` without `async` or `defer`, blocking rendering and slowing down FCP."] } },
+            { 
+                id: 'astonmartin',
+                name: 'Aston Martin',
+                website: 'https://www.astonmartinf1.com/en-GB',
+                rank: 6,
+                constructorRank: 8,
+                pageSpeedScore: 65,
+                ttfb: 720,
+                fcp: 2.6,
+                lcp: 4.4,
+                inp: 350,
+                cls: 0.080,
+                speedIndex: 4.5,
+                tti: 5.8,
+                color: '#006F62',
+                logoUrl: 'https://placehold.co/100x100/1F2937/006F62?text=AMR',
+                drivers: [
+                    { name: 'Fernando Alonso',headshotUrl: 'img/fernando-alonso.jpg' },
+                    { name: 'Lance Stroll', headshotUrl: 'img/lance-stroll.jpg' }
+                ],
+                points: 36,
+                budget: '$145M',
+                paddockTalk: "The Aston Martin site looks the part—it's sleek, stylish, and very green. But using it feels like trying to drive a beautiful car with the handbrake still on. It takes a while to load, and for a few frustrating seconds, you can't click on anything. The initial unresponsiveness creates a barrier, not a connection.", 
+                engineerNotes: { right: ["Good Visual Stability: A solid CLS result ensures the layout doesn't shift during load."], improve: ["JavaScript Bloat (INP/TTI): The primary culprit is the sheer amount of JS loaded upfront for the 'I / AM' membership platform. These scripts should be loaded on-demand, not for all users.", "Slow Server Response (TTFB): A slow TTFB suggests complex back-end queries. These need optimization.","Unoptimized Images (LCP): Using large images without sufficient compression or modern formatting leads to a poor LCP."] } 
+            },
+            { 
+                id: 'williams',
+                name: 'Williams',
+                website: 'https://www.williamsf1.com/',
+                rank: 5,
+                constructorRank: 5,
+                pageSpeedScore: 68,
+                ttfb: 580,
+                fcp: 2.4,
+                lcp: 4.1,
+                inp: 310,
+                cls: 0.110,
+                speedIndex: 4.0,
+                tti: 5.1,
+                color: '#005AFF',
+                logoUrl: 'https://placehold.co/100x100/1F2937/005AFF?text=WIL',
+                drivers: [
+                    { name: 'Alex Albon', headshotUrl: 'img/alex-albon.jpg' },
+                    { name: 'Carlos Sainz', headshotUrl: 'img/carlos-sainz.jpg' }
+                ],
+                points: 59,
+                budget: '$140M',
+                paddockTalk: "The Williams website experience is a bit like their recent on-track performance: you can see the ambition, but the execution isn't quite there yet. The page takes a noticeable time to fully appear, and just as you're about to click, the layout shifts, which is quite jarring. It has potential but needs refinement.", 
+                engineerNotes: { right: ["Decent Server Time (TTFB): A respectable TTFB shows the server infrastructure is not the primary bottleneck."], improve: ["Largest Contentful Paint (LCP): A poor 4.1s LCP is caused by a large, unoptimized JPEG. Switching to WebP is the most impactful change.", "Cumulative Layout Shift (CLS): A poor CLS score is caused by injected banners without reserved space. This is fixable by specifying container dimensions in CSS.", "Main-Thread Blocking (INP/TTI): Significant JavaScript for integrations blocks the main thread. Deferring non-essential scripts is crucial."] } },
+            { 
+                id: 'racingbulls',
+                name: 'Racing Bulls (VCARB)',
+                website: 'https://www.visacashapprb.com/int-en',
+                rank: 9,
+                constructorRank: 7,
+                pageSpeedScore: 45,
+                ttfb: 1100,
+                fcp: 3.8,
+                lcp: 6.5,
+                inp: 530,
+                cls: 0.180,
+                speedIndex: 6.9,
+                tti: 8.9,
+                color: '#0000FF',
+                logoUrl: 'https://placehold.co/100x100/1F2937/0000FF?text=RB',
+                drivers: [
+                    { name: 'Liam Lawson', headshotUrl: 'img/liam-lawson.png' }, 
+                    { name: 'Isac Hadjar', headshotUrl: 'img/isac-hadjar.jpg' }
+                ],
+                points: 36,
+                budget: '$140M',
+                paddockTalk: "The Racing Bulls website feels like it was designed by a committee, and a slow one at that. It takes an age to load, and when it finally does, it's unresponsive. This is the digital equivalent of a car designed with parts from three different teams that don't fit together properly.", 
+                engineerNotes: { right: ["The overwhelming negative impact of external factors makes it difficult to praise any specific aspect."], improve: ["Excessive Third-Party Requests (TTFB/INP/TTI): The core problem is the sheer number of blocking requests to Visa, Cash App, and Red Bull domains. A unified tagging and analytics strategy is desperately needed.", "Image and Asset Hosting: Assets should be consolidated onto a single, high-performance CDN to reduce connection overhead."] } },
+            { 
+                id: 'alpine',
+                name: 'Alpine',
+                website: 'https://www.alpinef1.com/',
+                rank: 7,
+                constructorRank: 10,
+                pageSpeedScore: 58,
+                ttfb: 850,
+                fcp: 2.9,
+                lcp: 5.2,
+                inp: 390,
+                cls: 0.150,
+                speedIndex: 5.3,
+                tti: 6.5,
+                color: '#0090FF',
+                logoUrl: 'https://placehold.co/100x100/1F2937/0090FF?text=ALP',
+                drivers: [
+                    { name: 'Pierre Gasly', headshotUrl: 'img/pierre-gasly.jpg' },
+                    { name: 'Franco Colapinto', headshotUrl: 'img/franco-colapinto.png' }],
+                points: 19,
+                budget: '$142M',
+                paddockTalk: "The Alpine website is a frustrating experience. You wait, and then you wait some more. When things finally start to appear, the page jumps around. It doesn't feel cohesive or fast, lacking the precision and elegance one might associate with the Alpine brand. It's a performance that needs a serious strategy rethink.",
+                engineerNotes: { right: ["There are few standout positive aspects of the site's performance."], improve: ["Server and Back-End (TTFB): A poor TTFB points to a slow back-end or underpowered server.", "Render-Blocking Resources (FCP/LCP): Multiple large CSS and JS files block rendering. This is a fundamental performance mistake.", "Layout Instability (CLS): A poor CLS is caused by elements loading without defined dimensions. Reserving space in CSS is a straightforward fix.", "Code Minification: CSS and JS files are not minified, increasing file sizes unnecessarily."] } },
+            { 
+                id: 'stake',
+                name: 'Kick Sauber',
+                website: 'https://www.sauber-group.com/',
+                rank: 8,
+                constructorRank: 6,
+                pageSpeedScore: 49,
+                ttfb: 910,
+                fcp: 3.3,
+                lcp: 5.8,
+                inp: 480,
+                cls: 0.210,
+                speedIndex: 6.1,
+                tti: 7.8,
+                color: '#00E100',
+                logoUrl: 'https://placehold.co/100x100/1F2937/00E100?text=STK',
+                drivers: [
+                    { name: 'Nico Hulkenberg',headshotUrl: 'img/nico-hulkenberg.jpg' },
+                    { name: 'Gabriel Bortoleto',headshotUrl: 'img/gabriel-bortoleto.jpg' }],
+                points: 41,
+                budget: '$138M',
+                paddockTalk: "Using the Sauber website is an exercise in patience. It's slow to load, and the page visibly reconstructs itself multiple times. Just when you think it's safe to interact, the entire page freezes as a sponsor element loads. It feels less like a high-tech F1 site and more like a slow, ad-heavy news portal.",
+                engineerNotes: { right: ["It is difficult to identify areas where the site excels from a performance perspective."], improve: ["Third-Party Script Impact (INP/CLS/TTI): The site's disastrous scores are directly attributable to heavy, blocking scripts from sponsors. These must be lazy-loaded or integrated more efficiently.", "Fundamental Optimizations: Beyond the sponsor issue, the site also fails on fundamentals like image optimization and render-blocking resources."] } },
+            { id: 'haas',
+                name: 'Haas F1 Team',
+                website: 'https://www.haasf1team.com/',
+                rank: 10,
+                constructorRank: 9,
+                pageSpeedScore: 40,
+                ttfb: 1350,
+                fcp: 4.2,
+                lcp: 7.1,
+                inp: 590,
+                cls: 0.255,
+                speedIndex: 7.5,
+                tti: 10.2,
+                color: '#B8B8B8',
+                logoUrl: 'https://placehold.co/100x100/1F2937/FFFFFF?text=HAA',
+                drivers: [
+                    { name: 'Esteban Ocon', headshotUrl: 'img/esteban-ocon.jpg' },
+                    { name: 'Oliver Bearman', headshotUrl: 'img/oliver-bearman.jpg' }],
+                points: 29,
+                budget: '$135M',
+                paddockTalk: "The Haas website is, frankly, a digital disaster. It is incredibly slow, the page jumps around violently, and it's completely unresponsive for what feels like an eternity. In a sport defined by cutting-edge technology, this level of digital performance is unacceptable.",
+                engineerNotes: { right: [], improve: ["Server Performance (TTFB): A TTFB of 1.35s is extremely poor and indicates a critical issue with the hosting environment.", "Asset Optimization (LCP): Serving massive, multi-megabyte images is a basic failure of web development fundamentals.", "Render-Blocking Resources (FCP/TTI): Heavy scripts for the 'Haas+' portal are loaded for all users and must be deferred.", "Layout Instability (CLS): A severe CLS score is caused by ads and images loading without dimensions, a simple but ignored fix."] } }
         ];
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -190,7 +418,9 @@
             const navLinks = document.querySelectorAll('header nav a, #mobile-menu a');
 
             function populateTable() {
-                teamData.forEach(team => {
+                const sortedByRank = [...teamData].sort((a,b) => a.rank - b.rank);
+
+                sortedByRank.forEach(team => {
                     const row = document.createElement('tr');
                     row.className = 'hover:bg-gray-50';
                     row.innerHTML = `
@@ -255,6 +485,9 @@
                                         <div>
                                             <h4 class="text-lg font-bold text-gray-900 mb-3">Team Info</h4>
                                             <div class="space-y-4">
+                                                <div class="flex items-center space-x-3">
+                                                    <h5 class="font-medium text-blue-600 dark:text-blue-500 hover:underline"> <a href="${team.website}">Homepage</a> </h5>
+                                                </div>
                                                 <div class="flex items-center space-x-3">
                                                     <img src="${team.drivers[0].headshotUrl}" alt="${team.drivers[0].name}" class="w-12 h-12 rounded-full bg-gray-200 object-cover">
                                                     <span class="font-semibold text-gray-700">${team.drivers[0].name}</span>
